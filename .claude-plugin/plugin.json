@@ -1,0 +1,13 @@
+{
+  "name": "telegram-bridge",
+  "description": "Bidirectional Telegram bot for Claude Code — text, photo, document, voice (Whisper TR/EN). Control Claude from anywhere via Telegram.",
+  "version": "1.1.0",
+  "author": {
+    "name": "SkyWalker2506",
+    "url": "https://github.com/SkyWalker2506"
+  },
+  "homepage": "https://github.com/SkyWalker2506/claude-config",
+  "repository": "https://github.com/SkyWalker2506/claude-plugins",
+  "license": "MIT",
+  "keywords": ["telegram", "bot", "bridge", "mobile", "remote", "voice", "whisper", "tr", "turkish"]
+}
