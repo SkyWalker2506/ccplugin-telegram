@@ -40,16 +40,13 @@ TELEGRAM_CHAT_ID=<from @userinfobot>
 Telegram → getUpdates polling → tg_parse.py → bash handler → claude -p → tg_send.py → Telegram
 ```
 
-> **Note:** `tg_parse.py`, `tg_send.py`, and `tg_voice.py` are required but not yet included in this repo (CC-5). They currently live in `claude-config/config/`.
-> `telegram-agent.py` also lives in `ccplugin-notifications/config/` and will be moved here (CC-7).
+## Relation to ccplugin-notifications
 
-## Roadmap
-
-- Voice messages → Whisper transcription (TR/EN) — not yet implemented (CC-6)
-- Add `tg_parse.py`, `tg_send.py`, `tg_voice.py` to this repo (CC-5)
-- Move `telegram-agent.py` from ccplugin-notifications here (CC-7)
+`ccplugin-telegram` focuses on **bidirectional control** — run Claude from your phone.  
+`ccplugin-notifications` focuses on **outbound notifications** — Claude notifies you.
 
 ## Part of
 
 - [claude-config](https://github.com/SkyWalker2506/claude-config) — Multi-Agent OS for Claude Code (134 agents, local-first routing)
-- [Plugin Marketplace](https://github.com/SkyWalker2506/claude-marketplace) — Browse & install all plugins
+- [Plugin Marketplace](https://github.com/SkyWalker2506/claude-marketplace) — Browse & install all 18 plugins
+- [ClaudeHQ](https://github.com/SkyWalker2506/ClaudeHQ) — Claude ecosystem HQ
