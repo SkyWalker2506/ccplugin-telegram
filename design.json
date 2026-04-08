@@ -1,0 +1,48 @@
+{
+  "cds_version": "1.0",
+  "name": "ccplugin-telegram",
+  "type": "plugin",
+  "input_patterns": [
+    {
+      "type": "auto_trigger",
+      "keywords": [
+        "telegram",
+        "bot message"
+      ],
+      "confirm": false,
+      "cooldown": 0
+    },
+    {
+      "type": "machine_api",
+      "description": "Telegram bot: /run <task>, voice, photo, file"
+    }
+  ],
+  "output_patterns": [
+    {
+      "type": "notification",
+      "channels": [
+        "telegram"
+      ]
+    },
+    {
+      "type": "terminal_text",
+      "max_lines": 20
+    }
+  ],
+  "lifecycle": {
+    "preflight": {
+      "required_tools": [
+        "curl"
+      ],
+      "required_secrets": [
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID"
+      ],
+      "required_mcp": []
+    }
+  },
+  "error_handling": {
+    "retry_network": true,
+    "max_retries": 3
+  }
+}
