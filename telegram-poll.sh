@@ -158,7 +158,22 @@ $CONTENT
       fi
       continue
     elif [ "$TYPE" = "VOICE" ]; then
-      send "🎤 Ses mesajı alındı ama henüz desteklenmiyor." "$MAIN_KB"
+      FILE_ID="$FIELD1"
+      DURATION="$FIELD2"
+      log "[VOICE] file_id=$FILE_ID duration=${DURATION}s"
+      VOICEFILE="$WORKDIR/voice_$$.ogg"
+      send "🎤 _Ses mesajı alındı (${DURATION}s), transkript ediliyor..._"
+      if download_tg_file "$FILE_ID" "$VOICEFILE"; then
+        TRANSCRIPT=$(python3 "$SCRIPT_DIR/tg_voice.py" "$VOICEFILE" 2>&1)
+        if [ $? -eq 0 ] && [ -n "$TRANSCRIPT" ]; then
+          log "[VOICE] transcript: $TRANSCRIPT"
+          run_claude "$TRANSCRIPT"
+        else
+          send "❌ Ses transkripti başarısız: $TRANSCRIPT" "$MAIN_KB"
+        fi
+      else
+        send "❌ Ses dosyası indirilemedi." "$MAIN_KB"
+      fi
       continue
     else
       TEXT="$FIELD1"
@@ -179,6 +194,15 @@ $CONTENT
       /stop)
         send "🔴 Durduruldu."
         exit 0 ;;
+      /restart)
+        send "🔄 _Yeniden başlatılıyor..._"
+        exec bash "$0" "$PROJECT_DIR" ;;
+      /restart\ *)
+        NEW_DIR="${TEXT#/restart }"
+        NEW_FULL="$HOME/Projects/$NEW_DIR"
+        [ -d "$NEW_FULL" ] && PROJECT_DIR="$NEW_FULL" || true
+        send "🔄 _Yeniden başlatılıyor → \`$(basename "$PROJECT_DIR")\`..._"
+        exec bash "$0" "$PROJECT_DIR" ;;
       /status)
         send "🟢 *Durum*
 Proje: \`$(basename "$PROJECT_DIR")\`

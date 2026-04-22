@@ -7,7 +7,7 @@
     "url": "https://github.com/SkyWalker2506"
   },
   "homepage": "https://github.com/SkyWalker2506/claude-config",
-  "repository": "https://github.com/SkyWalker2506/claude-plugins",
+  "repository": "https://github.com/SkyWalker2506/ccplugin-telegram",
   "license": "MIT",
   "keywords": ["telegram", "bot", "bridge", "mobile", "remote", "voice", "whisper", "tr", "turkish"]
 }
