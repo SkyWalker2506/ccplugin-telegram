@@ -5,7 +5,13 @@
 PROJECT_DIR="${1:-$HOME/Projects/claude-config}"
 LOG_FILE="$HOME/.watchdog/telegram.log"
 OFFSET_FILE="$HOME/.watchdog/telegram_offset"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Prefer installed location, fall back to script's own directory
+_INSTALLED_DIR="$HOME/.claude/plugins/telegram-bridge"
+if [ -f "$_INSTALLED_DIR/tg_parse.py" ]; then
+  SCRIPT_DIR="$_INSTALLED_DIR"
+else
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+fi
 WORKDIR=$(mktemp -d)
 trap "rm -rf $WORKDIR" EXIT
 
