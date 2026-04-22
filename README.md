@@ -4,11 +4,30 @@ by [Musab Kara](https://linkedin.com/in/musab-kara-85580612a) · [GitHub](https:
 
 Bidirectional Telegram bot for Claude Code. Control Claude from your phone — text, photos, documents, and voice (Whisper TR/EN).
 
-## Install
+## Quickstart (5 steps)
 
-```bash
-claude plugin install telegram-bridge@musabkara-claude-marketplace
-```
+1. **Get credentials** — Create a bot at [@BotFather](https://t.me/BotFather), get your chat ID from [@userinfobot](https://t.me/userinfobot)
+
+2. **Set secrets**
+   ```bash
+   echo 'export TELEGRAM_BOT_TOKEN="your-token"' >> ~/.claude/secrets/secrets.env
+   echo 'export TELEGRAM_CHAT_ID="your-chat-id"' >> ~/.claude/secrets/secrets.env
+   ```
+
+3. **Install**
+   ```bash
+   git clone https://github.com/SkyWalker2506/ccplugin-telegram
+   cd ccplugin-telegram && bash install.sh
+   ```
+
+4. **Start bot** (from Claude Code)
+   ```
+   /tgbot start
+   ```
+
+5. **Message your bot** — any free text is sent to Claude. Use `/help` for command list.
+
+> Optional: Set `CLAUDE_TIMEOUT=600` in secrets for longer tasks.
 
 ## Commands
 
@@ -18,21 +37,27 @@ claude plugin install telegram-bridge@musabkara-claude-marketplace
 | `/tgbot stop` | Stop the bot |
 | `/tgbot status` | Check if bot is running |
 
-## Setup
+## Bot Commands (in Telegram)
 
-Add to `~/.claude/secrets/secrets.env`:
-```
-TELEGRAM_BOT_TOKEN=<from @BotFather>
-TELEGRAM_CHAT_ID=<from @userinfobot>
-```
+| Command | Description |
+|---------|-------------|
+| `/run <task>` | Send task to Claude |
+| `/status` | Current project + time |
+| `/projects` | List ~/Projects |
+| `/cd <name>` | Switch project |
+| `/log` | Last 30 log lines |
+| `/restart [project]` | Hot-restart bot |
+| `/stop` | Stop the bot |
+| Free text | Routed to Claude directly |
 
 ## Features
 
-- Text commands → Claude executes
-- Photos → image analysis
-- Documents → file processing
+- Text, photos, documents → Claude executes / analyzes
+- **Voice messages** → Whisper transcription (Apple Speech / whisper.cpp / OpenAI API) → Claude
 - Inline keyboard buttons (Status, Projects, Log, Stop)
-- `/run <task>`, `/status`, `/projects`, `/cd`, `/log`, `/stop`
+- Progress updates every 60s for long tasks
+- Auth guard — ignores messages from unknown senders
+- `telegram-ask.sh` — agentic wait-for-reply helper for unattended flows
 
 ## Architecture
 

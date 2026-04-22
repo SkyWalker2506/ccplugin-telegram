@@ -26,8 +26,13 @@ if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
 fi
 
 API="https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}"
-mkdir -p "$(dirname "$LOG_FILE")"
+# Robust dir creation
+mkdir -p "$(dirname "$LOG_FILE")" "$(dirname "$OFFSET_FILE")" || {
+  echo "❌ Cannot create watchdog dir" >&2; exit 1
+}
 OFFSET=$(cat "$OFFSET_FILE" 2>/dev/null || echo "0")
+# Configurable Claude timeout
+CLAUDE_TIMEOUT="${CLAUDE_TIMEOUT:-300}"
 
 log() { echo "$(date '+%H:%M:%S'): $*" | tee -a "$LOG_FILE"; }
 
@@ -63,11 +68,28 @@ run_claude() {
   local task="$1"
   local out="$WORKDIR/out.txt"
   typing
-  send "⚙️ _Çalışıyor..._"
-  # --continue: mevcut session'ı devam ettirir (proje dizinine göre)
-  (cd "$PROJECT_DIR" && timeout 300 claude -p "$task" --continue --output-format text 2>&1) > "$out"
-  local result; result=$(cat "$out")
-  if [ ${#result} -gt 3500 ]; then
+  send "⚙️ _Çalışıyor... (max ${CLAUDE_TIMEOUT}s)_"
+
+  # Run Claude in background for progress streaming
+  (cd "$PROJECT_DIR" && timeout "$CLAUDE_TIMEOUT" claude -p "$task" --continue --output-format text 2>&1) > "$out" &
+  local claude_pid=$!
+
+  # Progress heartbeat every 60s
+  local elapsed=0
+  while kill -0 "$claude_pid" 2>/dev/null; do
+    sleep 10
+    elapsed=$((elapsed + 10))
+    if [ $((elapsed % 60)) -eq 0 ]; then
+      typing
+      send "⏳ _Hâlâ çalışıyor... (${elapsed}s)_"
+    fi
+  done
+  wait "$claude_pid"
+
+  local result; result=$(cat "$out" 2>/dev/null || echo "")
+  if [ -z "$result" ]; then
+    send "⚠️ Çıktı boş veya zaman aşımı (${CLAUDE_TIMEOUT}s)." "$MAIN_KB"
+  elif [ ${#result} -gt 3500 ]; then
     send_file "$out" "Çıktı ($(wc -l < "$out" | tr -d ' ') satır)"
   else
     send "✅ *Tamamlandı*
@@ -103,6 +125,8 @@ while true; do
 
   while IFS=$'\t' read -r TYPE UPD_ID FIELD1 FIELD2; do
     [ -z "$TYPE" ] && continue
+    # Auth guard: tg_parse.py already filters by CHAT_ID; this is belt-and-suspenders
+    # Update offset regardless to avoid replaying unknown updates
     OFFSET=$((UPD_ID + 1))
     echo "$OFFSET" > "$OFFSET_FILE"
 
